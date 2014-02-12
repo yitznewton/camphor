@@ -16,6 +16,7 @@ class CacheAspect
             throw new MultipleRegistrationException($message);
         }
 
+        $this->verifyClass($className);
         $this->verifyMethods($className, $methods);
 
         $this->createCachingClass($className, $methods);
@@ -59,6 +60,14 @@ class CacheAspect
         return preg_replace('/^.*?([^\\\\]+)$/', 'Caching\1', $className);
     }
 
+    private function verifyClass($className)
+    {
+        if (!class_exists($className)) {
+            $message = sprintf('Class "%s" does not exist.', $className);
+            throw new NonexistentClassException($message);
+        }
+    }
+
     private function verifyMethods($className, array $methods)
     {
         $reflection = new \ReflectionClass($className);
@@ -66,7 +75,7 @@ class CacheAspect
         foreach ($methods as $method) {
             if (!$reflection->hasMethod($method)) {
                 $message = sprintf(
-                    'Method "%s" does not exist on class "%s"',
+                    'Method "%s" does not exist on class "%s".',
                     $method,
                     $className
                 );

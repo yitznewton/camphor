@@ -10,11 +10,6 @@ class DataContainer
     private $value;
 
     /**
-     * @var bool
-     */
-    private $alreadyCalled = false;
-
-    /**
      * @param mixed $value
      */
     public function __construct($value)
@@ -27,12 +22,6 @@ class DataContainer
      */
     public function getValue()
     {
-        if ($this->alreadyCalled) {
-            return null;
-        }
-
-        $this->alreadyCalled = true;
-
         return $this->value;
     }
 }

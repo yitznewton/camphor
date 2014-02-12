@@ -5,6 +5,7 @@ namespace EasyBib\Tests\Camphor;
 use Doctrine\Common\Cache\ArrayCache;
 use EasyBib\Camphor\CacheAspect;
 use EasyBib\Camphor\MultipleRegistrationException;
+use EasyBib\Camphor\NonexistentClassException;
 use EasyBib\Camphor\NonexistentMethodException;
 use EasyBib\Tests\Camphor\Mocks\ComposingContainer;
 use EasyBib\Tests\Camphor\Mocks\DataContainer;
@@ -38,9 +39,8 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterWithNonexistentClass()
     {
-        $this->markTestIncomplete();
-        // $this->setExpectedException(NonexistentClassException::class);
-        // $this->cacheAspect->register('NoSuchClass', []);
+        $this->setExpectedException(NonexistentClassException::class);
+        $this->cacheAspect->register('NoSuchClass', []);
     }
 
     public function testRegisterWithNonexistentMethods()
