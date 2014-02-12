@@ -10,7 +10,7 @@
          syntaxCheck="false"
         >
     <testsuites>
-        <testsuite name="EasyBib API Client test suite">
+        <testsuite>
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
@@ -26,9 +26,4 @@
     <logging>
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false" />
     </logging>
-
-    <php>
-        <!--<server name="APP_DIR" value="/var/www/silexsandbox/app" />-->
-        <!--<env name="env" value="test" />-->
-    </php>
 </phpunit>
