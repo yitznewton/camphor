@@ -45,21 +45,37 @@ class CacheAspect
         eval($code);
     }
 
+    /**
+     * @param string $className
+     * @return string
+     */
     private function extractNamespace($className)
     {
         return preg_replace('/\\\\?[^\\\\]+$/', '', $className);
     }
 
+    /**
+     * @param string $className
+     * @return string
+     */
     private function fullCachingClassName($className)
     {
         return $this->extractNamespace($className) . '\\' . $this->cachingClassName($className);
     }
 
+    /**
+     * @param string $className
+     * @return string
+     */
     private function cachingClassName($className)
     {
         return preg_replace('/^.*?([^\\\\]+)$/', 'Caching\1', $className);
     }
 
+    /**
+     * @param string $className
+     * @throws NonexistentClassException
+     */
     private function verifyClass($className)
     {
         if (!class_exists($className)) {
@@ -68,6 +84,11 @@ class CacheAspect
         }
     }
 
+    /**
+     * @param string $className
+     * @param array $methods
+     * @throws NonexistentMethodException
+     */
     private function verifyMethods($className, array $methods)
     {
         $reflection = new \ReflectionClass($className);
