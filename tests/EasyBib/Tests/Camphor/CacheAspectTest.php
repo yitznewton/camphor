@@ -52,13 +52,19 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     public function testCachedMethod()
     {
         $this->markTestIncomplete();
+
         $dataValue = 'ABC123';
 
         $this->cacheAspect->register(DataContainer::class, ['getValue']);
 
-        $dataContainer = new \EasyBib\Tests\Camphor\Mocks\CachingDataContainer($dataValue);
+        $mockDataContainer = $this->getMockBuilder('\EasyBib\Tests\Camphor\Mocks\CachingDataContainer')
+            ->setConstructorArgs([$dataValue])
+            ->getMock();
 
-        $foo = new ComposingContainer($dataContainer);
+        $mockDataContainer->expects($this->once())
+            ->method('getValue');
+
+        $foo = new ComposingContainer($mockDataContainer);
 
         $directCall = $foo->getValue();
         $cachedCall = $foo->getValue();

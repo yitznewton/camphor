@@ -35,12 +35,18 @@ class CacheAspect
         }
 
         $code .= vsprintf(
-            'class %s extends \\%s {}',
+            "class %s extends \\%s {\n",
             [
                 $this->cachingClassName($className),
                 $className
             ]
         );
+
+        foreach ($methods as $method) {
+            $code .= $this->replacementMethod($className, $method);
+        }
+
+        $code .= "}\n";
 
         eval($code);
     }
@@ -104,5 +110,21 @@ class CacheAspect
                 throw new NonexistentMethodException($message);
             }
         }
+    }
+
+    private function replacementMethod($className, $methodName)
+    {
+        $reflection = new \ReflectionClass($className);
+        $oldMethod = $reflection->getMethod($methodName);
+
+        $newMethod = sprintf(
+            '%s function %s',
+            $oldMethod->isPublic() ? 'public' : 'protected',
+            $oldMethod->getName()
+        );
+
+        $newMethod .= "() {}\n";
+
+        return $newMethod;
     }
 }
