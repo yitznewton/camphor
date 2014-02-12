@@ -1,0 +1,36 @@
+{
+    "name": "easybiblabs/camphor",
+    "description": "Camphor: an aspect-oriented method cache for PHP",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "Yitzchak Schaffer",
+            "email": "yitzchak@imagineeasy.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:fabpot/PHP-CS-Fixer.git"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "doctrine/cache": ">=1.3"
+    },
+    "require-dev": {
+      "phpunit/phpunit": ">=3.7",
+      "phpmd/phpmd": ">=1.5",
+      "fabpot/php-cs-fixer": "dev-master",
+      "squizlabs/php_codesniffer": "1.*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-0": {
+            "EasyBib\\": "src/",
+            "EasyBib\\Tests\\": "tests/"
+        },
+        "classmap": ["tests/"]
+    }
+}
