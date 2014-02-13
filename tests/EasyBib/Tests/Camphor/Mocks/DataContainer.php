@@ -24,4 +24,11 @@ class DataContainer
     {
         return $this->value;
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function doSomethingPrivate()
+    {
+    }
 }

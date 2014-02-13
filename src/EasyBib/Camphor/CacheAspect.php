@@ -25,6 +25,7 @@ class CacheAspect
     /**
      * @param string $className
      * @param array $methods
+     * @SuppressWarnings(PHPMD.EvalExpression)
      */
     private function createCachingClass($className, array $methods)
     {
@@ -108,6 +109,15 @@ class CacheAspect
                 );
 
                 throw new NonexistentMethodException($message);
+            }
+
+            if ($reflection->getMethod($method)->isPrivate()) {
+                $message = sprintf(
+                    'Cannot cache method "%s" because it is private.',
+                    $method
+                );
+
+                throw new PrivateMethodException($message);
             }
         }
     }

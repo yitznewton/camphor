@@ -7,6 +7,7 @@ use EasyBib\Camphor\CacheAspect;
 use EasyBib\Camphor\MultipleRegistrationException;
 use EasyBib\Camphor\NonexistentClassException;
 use EasyBib\Camphor\NonexistentMethodException;
+use EasyBib\Camphor\PrivateMethodException;
 use EasyBib\Tests\Camphor\Mocks\ComposingContainer;
 use EasyBib\Tests\Camphor\Mocks\DataContainer;
 
@@ -47,6 +48,12 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(NonexistentMethodException::class);
         $this->cacheAspect->register(DataContainer::class, ['noSuchMethod']);
+    }
+
+    public function testRegisterOnPrivateMethod()
+    {
+        $this->setExpectedException(PrivateMethodException::class);
+        $this->cacheAspect->register(DataContainer::class, ['doSomethingPrivate']);
     }
 
     public function testCachedMethod()
