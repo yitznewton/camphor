@@ -2,8 +2,23 @@
 
 namespace EasyBib\Camphor;
 
+use Doctrine\Common\Cache\Cache;
+
 class CacheAspect
 {
+    /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
+     * @param Cache $cache
+     */
+    public function __construct(Cache $cache)
+    {
+        $this->cache = $cache;
+    }
+
     /**
      * @param string $className
      * @param array $methods
@@ -20,32 +35,34 @@ class CacheAspect
         $this->verifyMethods($className, $methods);
 
         $this->createCachingClass($className, $methods);
+        $newClassName = $this->fullCachingClassName($className);
+        $newClassName::setCache($this->cache);
     }
 
     /**
      * @SuppressWarnings(PHPMD.EvalExpression)
-     * @param string $className
+     * @param string $existingClassName
      * @param array $methods
      */
-    private function createCachingClass($className, array $methods)
+    private function createCachingClass($existingClassName, array $methods)
     {
         $code = '';
 
-        if ($namespace = $this->extractNamespace($className)) {
+        if ($namespace = $this->extractNamespace($existingClassName)) {
             $code .= sprintf("namespace %s;\n", $namespace);
         }
 
         $code .= vsprintf(
             "class %s extends \\%s\n{\n",
             [
-                $this->cachingClassName($className),
-                $className
+                $this->cachingClassName($existingClassName),
+                $existingClassName
             ]
         );
 
         $code .= <<<EOF
-        private \$cache = [];
         private \$cacheKeyGenerator;
+        private static \$cache;
 
         public function __construct()
         {
@@ -53,11 +70,16 @@ class CacheAspect
             \$this->cacheKeyGenerator = new \EasyBib\Camphor\CacheKeyGenerator();
         }
 
+        public static function setCache(\Doctrine\Common\Cache\Cache \$cache)
+        {
+            self::\$cache = \$cache;
+        }
+
 
 EOF;
 
         foreach ($methods as $method) {
-            $code .= $this->replacementMethod($className, $method);
+            $code .= $this->replacementMethod($existingClassName, $method);
         }
 
         $code .= "}\n";
@@ -158,11 +180,14 @@ EOF;
     \$args = func_get_args();
     \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
 
-    if (array_key_exists(\$key, \$this->cache)) {
-        return \$this->cache[\$key];
+    if (self::\$cache->contains(\$key)) {
+        return self::\$cache->fetch(\$key);
     }
 
-    return \$this->cache[\$key] = call_user_func_array('parent::$methodName', \$args);
+    \$value = call_user_func_array('parent::$methodName', \$args);
+    self::\$cache->save(\$key, \$value);
+
+    return \$value;
 }
 
 EOF;
