@@ -23,9 +23,9 @@ class CacheAspect
     }
 
     /**
+     * @SuppressWarnings(PHPMD.EvalExpression)
      * @param string $className
      * @param array $methods
-     * @SuppressWarnings(PHPMD.EvalExpression)
      */
     private function createCachingClass($className, array $methods)
     {
@@ -36,12 +36,25 @@ class CacheAspect
         }
 
         $code .= vsprintf(
-            "class %s extends \\%s {\n",
+            "class %s extends \\%s\n{\n",
             [
                 $this->cachingClassName($className),
                 $className
             ]
         );
+
+        $code .= <<<EOF
+        private \$cache = [];
+        private \$cacheKeyGenerator;
+
+        public function __construct()
+        {
+            call_user_func_array('parent::__construct', func_get_args());
+            \$this->cacheKeyGenerator = new \EasyBib\Camphor\CacheKeyGenerator();
+        }
+
+
+EOF;
 
         foreach ($methods as $method) {
             $code .= $this->replacementMethod($className, $method);
@@ -139,7 +152,20 @@ class CacheAspect
             $oldMethod->getName()
         );
 
-        $newMethod .= "() {}\n";
+        $newMethod .= <<<EOF
+()
+{
+    \$args = func_get_args();
+    \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
+
+    if (array_key_exists(\$key, \$this->cache)) {
+        return \$this->cache[\$key];
+    }
+
+    return \$this->cache[\$key] = call_user_func_array('parent::$methodName', \$args);
+}
+
+EOF;
 
         return $newMethod;
     }
