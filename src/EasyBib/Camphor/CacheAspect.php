@@ -95,6 +95,7 @@ class CacheAspect
      * @param string $className
      * @param array $methods
      * @throws NonexistentMethodException
+     * @throws PrivateMethodException
      */
     private function verifyMethods($className, array $methods)
     {
@@ -122,6 +123,11 @@ class CacheAspect
         }
     }
 
+    /**
+     * @param string $className
+     * @param string $methodName
+     * @return string
+     */
     private function replacementMethod($className, $methodName)
     {
         $reflection = new \ReflectionClass($className);

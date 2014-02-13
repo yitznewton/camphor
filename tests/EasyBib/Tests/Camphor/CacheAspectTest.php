@@ -62,19 +62,20 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
 
         $dataValue = 'ABC123';
 
-        $this->cacheAspect->register(DataContainer::class, ['getValue']);
+        $this->cacheAspect->register(ComposingContainer::class, ['getValue']);
 
-        $mockDataContainer = $this->getMockBuilder('\EasyBib\Tests\Camphor\Mocks\CachingDataContainer')
+
+        $mockDataContainer = $this->getMockBuilder(DataContainer::class)
             ->setConstructorArgs([$dataValue])
             ->getMock();
 
         $mockDataContainer->expects($this->once())
             ->method('getValue');
 
-        $foo = new ComposingContainer($mockDataContainer);
+        $composingContainer = new \EasyBib\Tests\Camphor\Mocks\CachingComposingContainer($mockDataContainer);
 
-        $directCall = $foo->getValue();
-        $cachedCall = $foo->getValue();
+        $directCall = $composingContainer->getValue();
+        $cachedCall = $composingContainer->getValue();
 
         $this->assertEquals($dataValue, $directCall);
         $this->assertEquals($dataValue, $cachedCall);
