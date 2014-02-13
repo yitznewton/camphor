@@ -62,12 +62,21 @@ class CacheAspect
 
         $code .= <<<EOF
         private \$cacheKeyGenerator;
+        private \$argValidator;
         private static \$cache;
 
         public function __construct()
         {
             call_user_func_array('parent::__construct', func_get_args());
             \$this->cacheKeyGenerator = new \EasyBib\Camphor\CacheKeyGenerator();
+            \$this->argValidator = new \EasyBib\Camphor\ArgumentValidator();
+        }
+
+        public function validateArgs(array \$args)
+        {
+            foreach (\$args as \$arg) {
+                \$this->argValidator->validate(\$arg);
+            }
         }
 
         public static function setCache(\Doctrine\Common\Cache\Cache \$cache)
@@ -178,6 +187,8 @@ EOF;
 ()
 {
     \$args = func_get_args();
+    \$this->validateArgs(\$args);
+
     \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
 
     if (self::\$cache->contains(\$key)) {
