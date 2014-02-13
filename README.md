@@ -15,7 +15,7 @@ Because of its reliance on newer metaprogramming features, Camphor requires
 
 ## Usage
 
-Let's say you have a class whose method you want to cache:
+Let's say you have a class, and you want to cache one or more of its methods.
 
 ```php
 class Foo
@@ -53,4 +53,4 @@ Instead of using an `ArrayCache`, you can swap in any other
 
 ## Limitations
 
-As of the current release, **only scalar arguments** are supported.
+As of the current release, **only methods with exclusively scalar arguments** are supported.
