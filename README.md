@@ -2,6 +2,9 @@
 
 That's "**Ca**che **m**ethod for **PH**P," in case you were wondering.
 
+This project was directly inspired by the Ruby gem
+[cache_method](https://github.com/seamusabshere/cache_method)
+
 ## Installation
 
 Because of its reliance on newer metaprogramming features, Camphor requires
