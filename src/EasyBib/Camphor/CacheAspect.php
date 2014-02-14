@@ -2,21 +2,19 @@
 
 namespace EasyBib\Camphor;
 
-use Doctrine\Common\Cache\Cache;
-
 class CacheAspect
 {
     /**
-     * @var Cache
+     * @var CachingFilter
      */
-    private $cache;
+    private $cachingFilter;
 
     /**
-     * @param Cache $cache
+     * @param CachingFilter $cachingFilter
      */
-    public function __construct(Cache $cache)
+    public function __construct(CachingFilter $cachingFilter)
     {
-        $this->cache = $cache;
+        $this->cachingFilter = $cachingFilter;
     }
 
     /**
@@ -36,7 +34,7 @@ class CacheAspect
 
         $this->createCachingClass($className, $methods);
         $newClassName = $this->fullCachingClassName($className);
-        $newClassName::setCache($this->cache);
+        $newClassName::setCachingFilter($this->cachingFilter);
     }
 
     /**
@@ -63,7 +61,7 @@ class CacheAspect
         $code .= <<<EOF
         private \$cacheKeyGenerator;
         private \$argValidator;
-        private static \$cache;
+        private static \$cachingFilter;
 
         public function __construct()
         {
@@ -79,9 +77,9 @@ class CacheAspect
             }
         }
 
-        public static function setCache(\Doctrine\Common\Cache\Cache \$cache)
+        public static function setCachingFilter(\EasyBib\Camphor\CachingFilter \$cachingFilter)
         {
-            self::\$cache = \$cache;
+            self::\$cachingFilter = \$cachingFilter;
         }
 
 
@@ -190,15 +188,13 @@ EOF;
     \$this->validateArgs(\$args);
 
     \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
+    \$parentCallback = 'parent::$methodName';
 
-    if (self::\$cache->contains(\$key)) {
-        return self::\$cache->fetch(\$key);
-    }
+    \$callback = function () use (\$parentCallback, \$args) {
+        return call_user_func_array(\$parentCallback, \$args);
+    };
 
-    \$value = call_user_func_array('parent::$methodName', \$args);
-    self::\$cache->save(\$key, \$value);
-
-    return \$value;
+    return self::\$cachingFilter->applyFilter(\$key, \$callback);
 }
 
 EOF;

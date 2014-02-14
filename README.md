@@ -35,9 +35,10 @@ calling your method the first time its copy is called, and storing the value
 in cache for future calls made with the same arguments.
 
 ```php
-use Doctrine\Common\Cache\ArrayCache;
+use EasyBib\Camphor;
 
-$cacheAspect = new CacheAspect(new ArrayCache());
+$cachingFilter = new CachingFilter();
+$cacheAspect = new CacheAspect($cachingFilter);
 // register the Foo class and cache the bar method
 $cacheAspect->register(Foo::class, ['bar']);
 

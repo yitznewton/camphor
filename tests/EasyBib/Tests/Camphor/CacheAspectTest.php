@@ -2,8 +2,8 @@
 
 namespace EasyBib\Tests\Camphor;
 
-use Doctrine\Common\Cache\ArrayCache;
 use EasyBib\Camphor\CacheAspect;
+use EasyBib\Camphor\CachingFilter;
 use EasyBib\Camphor\MultipleRegistrationException;
 use EasyBib\Camphor\NonexistentClassException;
 use EasyBib\Camphor\NonexistentMethodException;
@@ -20,7 +20,8 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->cacheAspect = new CacheAspect(new ArrayCache());
+        $cachingFilter = new CachingFilter();
+        $this->cacheAspect = new CacheAspect($cachingFilter);
     }
 
     /**
