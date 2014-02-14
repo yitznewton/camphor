@@ -59,28 +59,28 @@ class CacheAspect
         );
 
         $code .= <<<EOF
-        private \$cacheKeyGenerator;
-        private \$argValidator;
-        private static \$cachingFilter;
+            private \$cacheKeyGenerator;
+            private \$argValidator;
+            private static \$cachingFilter;
 
-        public function __construct()
-        {
-            call_user_func_array('parent::__construct', func_get_args());
-            \$this->cacheKeyGenerator = new \EasyBib\Camphor\CacheKeyGenerator();
-            \$this->argValidator = new \EasyBib\Camphor\ArgumentValidator();
-        }
-
-        public function validateArgs(array \$args)
-        {
-            foreach (\$args as \$arg) {
-                \$this->argValidator->validate(\$arg);
+            public function __construct()
+            {
+                call_user_func_array('parent::__construct', func_get_args());
+                \$this->cacheKeyGenerator = new \EasyBib\Camphor\CacheKeyGenerator();
+                \$this->argValidator = new \EasyBib\Camphor\ArgumentValidator();
             }
-        }
 
-        public static function setCachingFilter(\EasyBib\Camphor\CachingFilter \$cachingFilter)
-        {
-            self::\$cachingFilter = \$cachingFilter;
-        }
+            public function validateArgs(array \$args)
+            {
+                foreach (\$args as \$arg) {
+                    \$this->argValidator->validate(\$arg);
+                }
+            }
+
+            public static function setCachingFilter(\EasyBib\Camphor\CachingFilter \$cachingFilter)
+            {
+                self::\$cachingFilter = \$cachingFilter;
+            }
 
 
 EOF;
@@ -182,20 +182,21 @@ EOF;
         );
 
         $newMethod .= <<<EOF
-()
-{
-    \$args = func_get_args();
-    \$this->validateArgs(\$args);
+            ()
+            {
+                \$args = func_get_args();
+                \$this->validateArgs(\$args);
 
-    \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
-    \$parentCallback = 'parent::$methodName';
+                \$key = \$this->cacheKeyGenerator->generate('$className', '$methodName', \$args);
+                \$parentCallback = 'parent::$methodName';
 
-    \$callback = function () use (\$parentCallback, \$args) {
-        return call_user_func_array(\$parentCallback, \$args);
-    };
+                \$callback = function () use (\$parentCallback, \$args) {
+                    return call_user_func_array(\$parentCallback, \$args);
+                };
 
-    return self::\$cachingFilter->applyFilter(\$key, \$callback);
-}
+                return self::\$cachingFilter->applyFilter(\$key, \$callback);
+            }
+
 
 EOF;
 
