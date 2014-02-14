@@ -24,6 +24,11 @@ class CachingFilter
         $this->cache = $cache;
     }
 
+    /**
+     * @param string $key
+     * @param callable $callback
+     * @return mixed
+     */
     public function applyFilter($key, callable $callback)
     {
         if ($this->cache->contains($key)) {

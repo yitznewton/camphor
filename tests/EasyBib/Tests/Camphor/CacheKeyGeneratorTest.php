@@ -18,6 +18,9 @@ class CacheKeyGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->generator = new CacheKeyGenerator();
     }
 
+    /**
+     * @return array
+     */
     public function getValidData()
     {
         return [

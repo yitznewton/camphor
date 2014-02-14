@@ -4,6 +4,10 @@ namespace EasyBib\Camphor;
 
 class ArgumentValidator
 {
+    /**
+     * @param $argument
+     * @throws InvalidArgumentException
+     */
     public function validate($argument)
     {
         if (is_resource($argument)) {

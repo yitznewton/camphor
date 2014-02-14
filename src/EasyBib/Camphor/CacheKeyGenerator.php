@@ -5,8 +5,8 @@ namespace EasyBib\Camphor;
 class CacheKeyGenerator
 {
     /**
-     * @param $className
-     * @param $methodName
+     * @param string $className
+     * @param string $methodName
      * @param array $args
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -21,6 +21,10 @@ class CacheKeyGenerator
         );
     }
 
+    /**
+     * @param mixed $element
+     * @return string
+     */
     private function stringify($element)
     {
         if (is_scalar($element)) {
