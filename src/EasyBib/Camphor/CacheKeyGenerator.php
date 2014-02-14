@@ -13,21 +13,20 @@ class CacheKeyGenerator
      */
     public function generate($className, $methodName, array $args)
     {
-        return $this->stringify(func_get_args());
+        return sprintf(
+            '%s|%s|%s',
+            $this->stringify($className),
+            $this->stringify($methodName),
+            implode('|', array_map([$this, 'stringify'], $args))
+        );
     }
 
-    private function stringify(array $elements)
+    private function stringify($element)
     {
-        return array_reduce($elements, function ($result, $element) {
-            if ($result) {
-                $result .= '.';
-            }
+        if (is_scalar($element)) {
+            return $element;
+        }
 
-            if (is_string($element)) {
-                return $result . $element;
-            }
-
-            return $result . $this->stringify($element);
-        }, '');
+        return serialize($element);
     }
 }

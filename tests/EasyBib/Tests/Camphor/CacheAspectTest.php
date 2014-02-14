@@ -7,75 +7,91 @@ use EasyBib\Camphor\CachingFilter;
 use EasyBib\Camphor\MultipleRegistrationException;
 use EasyBib\Camphor\NonexistentClassException;
 use EasyBib\Camphor\NonexistentMethodException;
-use EasyBib\Camphor\NonscalarArgumentException;
+use EasyBib\Camphor\InvalidArgumentException;
 use EasyBib\Camphor\PrivateMethodException;
 use EasyBib\Tests\Camphor\Mocks\ComposingContainer;
 use EasyBib\Tests\Camphor\Mocks\DataContainer;
 
 class CacheAspectTest extends \PHPUnit_Framework_TestCase
 {
-    private $cacheAspect;
+    private static $cacheAspect;
+
+    /**
+     * We need to set this up only once, since it creates a new class
+     * dynamically. We cannot use PHPUnit's process isolation option, because
+     * PHPUnit then attempts to share state across processes using serialization,
+     * and we run into 'serialization of Closure' errors
+     */
+    public static function setUpBeforeClass()
+    {
+        $cachingFilter = new CachingFilter();
+        self::$cacheAspect = new CacheAspect($cachingFilter);
+        self::$cacheAspect->register(ComposingContainer::class, ['getValue']);
+    }
 
     public function setUp()
     {
         parent::setUp();
 
-        $cachingFilter = new CachingFilter();
-        $this->cacheAspect = new CacheAspect($cachingFilter);
+        self::$cacheAspect->reset();
     }
 
     /**
      * @return array
      */
-    public function getNonscalarArguments()
+    public function getValidArguments()
     {
         return [
-            [[]],
-            [new \stdClass()],
-            // PHPUnit doesn't seem to like passing resources via data providers
-            // [curl_init()],
+            ['jim'],
+            [123],
+            [56.78],
+            [['foo' => 'bar']],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getInvalidArguments()
+    {
+        return [
+            [curl_init()],
         ];
     }
 
     public function testRegister()
     {
-        $cachingClassName = str_replace('DataContainer', 'CachingDataContainer', DataContainer::class);
-
-        $this->cacheAspect->register(DataContainer::class, ['getValue']);
-
+        $cachingClassName = str_replace('ComposingContainer', 'CachingComposingContainer', ComposingContainer::class);
         $this->assertClassExists($cachingClassName);
     }
 
     public function testRegisterMultipleCalls()
     {
         $this->setExpectedException(MultipleRegistrationException::class);
-        $this->cacheAspect->register(DataContainer::class, ['getValue']);
-        $this->cacheAspect->register(DataContainer::class, ['getValue']);
+        self::$cacheAspect->register(ComposingContainer::class, []);
     }
 
     public function testRegisterWithNonexistentClass()
     {
         $this->setExpectedException(NonexistentClassException::class);
-        $this->cacheAspect->register('NoSuchClass', []);
+        self::$cacheAspect->register('NoSuchClass', []);
     }
 
     public function testRegisterWithNonexistentMethods()
     {
         $this->setExpectedException(NonexistentMethodException::class);
-        $this->cacheAspect->register(DataContainer::class, ['noSuchMethod']);
+        self::$cacheAspect->register(DataContainer::class, ['noSuchMethod']);
     }
 
     public function testRegisterOnPrivateMethod()
     {
         $this->setExpectedException(PrivateMethodException::class);
-        $this->cacheAspect->register(DataContainer::class, ['doSomethingPrivate']);
+        self::$cacheAspect->register(DataContainer::class, ['doSomethingPrivate']);
     }
 
     public function testCachedMethodOnce()
     {
         $dataValue = 'ABC123';
-
-        $this->cacheAspect->register(ComposingContainer::class, ['getValue']);
 
         $dataContainer = new DataContainer($dataValue);
         $composingContainer = new \EasyBib\Tests\Camphor\Mocks\CachingComposingContainer($dataContainer);
@@ -83,11 +99,13 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($dataValue, $composingContainer->getValue());
     }
 
-    public function testCachedMethod()
+    /**
+     * @param mixed $arg
+     * @dataProvider getValidArguments
+     */
+    public function testCachedMethod($arg)
     {
         $dataValue = 'ABC123';
-
-        $this->cacheAspect->register(ComposingContainer::class, ['getValue']);
 
         $mockDataContainer = $this->getMockBuilder(DataContainer::class)
             ->setConstructorArgs([$dataValue])
@@ -99,8 +117,8 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
 
         $composingContainer = new \EasyBib\Tests\Camphor\Mocks\CachingComposingContainer($mockDataContainer);
 
-        $directCall = $composingContainer->getValue();
-        $cachedCall = $composingContainer->getValue();
+        $directCall = $composingContainer->getValue($arg);
+        $cachedCall = $composingContainer->getValue($arg);
 
         $this->assertEquals($dataValue, $directCall);
         $this->assertEquals($dataValue, $cachedCall);
@@ -109,8 +127,6 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     public function testCachedMethodWithNewArg()
     {
         $dataValue = 'ABC123';
-
-        $this->cacheAspect->register(ComposingContainer::class, ['getValue']);
 
         $mockDataContainer = $this->getMockBuilder(DataContainer::class)
             ->setConstructorArgs([$dataValue])
@@ -132,16 +148,14 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param mixed $arg
-     * @dataProvider getNonscalarArguments
+     * @dataProvider getInvalidArguments
      */
     public function testCachedMethodWithNonscalarArg($arg)
     {
-        $this->cacheAspect->register(ComposingContainer::class, ['getValue']);
-
         $dataContainer = new DataContainer('ABC123');
         $composingContainer = new \EasyBib\Tests\Camphor\Mocks\CachingComposingContainer($dataContainer);
 
-        $this->setExpectedException(NonscalarArgumentException::class);
+        $this->setExpectedException(InvalidArgumentException::class);
         $composingContainer->getValue($arg);
     }
 

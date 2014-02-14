@@ -35,4 +35,9 @@ class CachingFilter
 
         return $value;
     }
+
+    public function reset()
+    {
+        $this->cache->deleteAll();
+    }
 }

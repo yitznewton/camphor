@@ -54,4 +54,10 @@ Instead of using an `ArrayCache`, you can swap in any other
 
 ## Limitations
 
-As of the current release, **only methods with exclusively scalar arguments** are supported.
+* By default, the pipe symbol `|` is used as a delimiter in creating cache keys.
+  If your arguments may include pipe symbols, you will need to set a different
+  key in order to be certain that there are no cache key collisions. There is
+  no support for this in the current release.
+
+* As of the current release, only methods with exclusively PHP-serializable
+  arguments are supported.

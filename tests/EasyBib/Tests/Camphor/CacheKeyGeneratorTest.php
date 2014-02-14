@@ -18,14 +18,28 @@ class CacheKeyGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->generator = new CacheKeyGenerator();
     }
 
-    public function testGenerateWithStringArgs()
+    public function getValidData()
+    {
+        return [
+            [[123], '123'],
+            [[123, 456], '123|456'],
+            [[123.45], '123.45'],
+            [[['foo' => 'bar']], serialize(['foo' => 'bar'])],
+        ];
+    }
+
+    /**
+     * @dataProvider getValidData
+     * @param array $args
+     * @param $expectedKeySuffix
+     */
+    public function testGenerateWithValidArgs($args, $expectedKeySuffix)
     {
         $className = 'FooClass';
         $methodName = 'barMethod';
-        $arg0 = 'some_value';
-        $args = [$arg0];
 
-        $key = $this->generator->generate($className, $methodName, $args);
-        $this->assertEquals('FooClass.barMethod.some_value', $key);
+        $actualKey = $this->generator->generate($className, $methodName, $args);
+        $expectedKey = sprintf('FooClass|barMethod|%s', $expectedKeySuffix);
+        $this->assertEquals($expectedKey, $actualKey);
     }
 }

@@ -37,6 +37,11 @@ class CacheAspect
         $newClassName::setCachingFilter($this->cachingFilter);
     }
 
+    public function reset()
+    {
+        $this->cachingFilter->reset();
+    }
+
     /**
      * @SuppressWarnings(PHPMD.EvalExpression)
      * @param string $existingClassName
