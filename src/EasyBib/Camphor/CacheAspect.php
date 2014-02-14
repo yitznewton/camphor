@@ -50,12 +50,10 @@ class CacheAspect
             $code .= sprintf("namespace %s;\n", $namespace);
         }
 
-        $code .= vsprintf(
+        $code .= sprintf(
             "class %s extends \\%s\n{\n",
-            [
-                $this->cachingClassName($existingClassName),
-                $existingClassName
-            ]
+            $this->cachingClassName($existingClassName),
+            $existingClassName
         );
 
         $code .= <<<EOF
@@ -178,7 +176,7 @@ EOF;
         $newMethod = sprintf(
             '%s function %s',
             $oldMethod->isPublic() ? 'public' : 'protected',
-            $oldMethod->getName()
+            $methodName
         );
 
         $newMethod .= <<<EOF

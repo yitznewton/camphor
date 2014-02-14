@@ -9,7 +9,6 @@ class CacheKeyGenerator
      * @param string $methodName
      * @param array $args
      * @return string
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function generate($className, $methodName, array $args)
     {
