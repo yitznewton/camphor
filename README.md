@@ -22,20 +22,25 @@ class Foo
 {
     public function bar($param)
     {
-        // do expensive stuff
+        // do lots of
+        // expensive stuff
+        // ...
+
         return $calculatedValue;
     }
 }
 ```
 
-In order to cache the method, register it with a CacheAspect. This will create
+In order to cache the method, register it with a `CacheAspect`. This will create
 a subclass of your class in the same namespace, whose name is prefixed with
-`Caching` - so in the example, `CachingFoo`. This class acts as a Proxy,
+`Caching` - so in the example, `CachingFoo`. This class, in conjunction with
+ Camphor's `CachingFilter` class, acts as a Proxy,
 calling your method the first time its copy is called, and storing the value
 in cache for future calls made with the same arguments.
 
 ```php
-use EasyBib\Camphor;
+use EasyBib\Camphor\CacheAspect;
+use EasyBib\Camphor\CachingFilter;
 
 $cachingFilter = new CachingFilter();
 $cacheAspect = new CacheAspect($cachingFilter);
@@ -49,8 +54,18 @@ $secondCall = $myFoo->bar('jimmy');  // retrieves the value from cache
 $otherCall  = $myFoo->bar('billy');  // calls Foo::bar('billy');
 ```
 
-Instead of using an `ArrayCache`, you can swap in any other
-[Doctrine Cache](https://github.com/doctrine/cache) implementation.
+Instead of using the default `ArrayCache`, you can swap in any other
+[Doctrine Cache](https://github.com/doctrine/cache) implementation by
+instantiating it and passing it in the `CachingFilter` constructor:
+
+```php
+use Doctrine\Common\Cache\RedisCache;
+use EasyBib\Camphor\CachingFilter;
+
+$redisCache = new RedisCache();
+$cachingFilter = new CachingFilter($redisCache);
+// etc.
+```
 
 ## Limitations
 
@@ -59,5 +74,12 @@ Instead of using an `ArrayCache`, you can swap in any other
   key in order to be certain that there are no cache key collisions. There is
   no support for this in the current release.
 
-* As of the current release, only methods with exclusively PHP-serializable
+* As of the current release, only methods with exclusively
+  [PHP-serializable](http://www.php.net/manual/en/function.serialize.php)
   arguments are supported.
+
+* Since Camphor's generated classes are built at runtime, they are not able to
+  benefit from opcode caches. Use of Camphor assumes that your system
+  architecture is capable of working with `eval()`'ed code, and that the
+  expense of running your actual code repeatedly is greater than the expense
+  of generating the caching subclass on the fly.
