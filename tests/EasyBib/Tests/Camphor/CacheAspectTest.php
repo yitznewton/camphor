@@ -14,6 +14,14 @@ use EasyBib\Tests\Camphor\Mocks\DataContainer;
 
 class CacheAspectTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var CachingFilter
+     */
+    private static $cachingFilter;
+
+    /**
+     * @var CacheAspect
+     */
     private static $cacheAspect;
 
     /**
@@ -24,8 +32,8 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
      */
     public static function setUpBeforeClass()
     {
-        $cachingFilter = new CachingFilter();
-        self::$cacheAspect = new CacheAspect($cachingFilter);
+        self::$cachingFilter = new CachingFilter();
+        self::$cacheAspect = new CacheAspect(self::$cachingFilter);
         self::$cacheAspect->register(ComposingContainer::class, ['getValue']);
     }
 
@@ -33,7 +41,7 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        self::$cacheAspect->reset();
+        self::$cachingFilter->reset();
     }
 
     /**

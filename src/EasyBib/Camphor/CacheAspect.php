@@ -37,11 +37,6 @@ class CacheAspect
         $newClassName::setCachingFilter($this->cachingFilter);
     }
 
-    public function reset()
-    {
-        $this->cachingFilter->reset();
-    }
-
     /**
      * @SuppressWarnings(PHPMD.EvalExpression)
      * @param string $existingClassName
@@ -91,7 +86,7 @@ class CacheAspect
 EOF;
 
         foreach ($methods as $method) {
-            $code .= $this->replacementMethod($existingClassName, $method);
+            $code .= $this->generateReplacementMethod($existingClassName, $method);
         }
 
         $code .= "}\n";
@@ -175,7 +170,7 @@ EOF;
      * @param string $methodName
      * @return string
      */
-    private function replacementMethod($className, $methodName)
+    private function generateReplacementMethod($className, $methodName)
     {
         $reflection = new \ReflectionClass($className);
         $oldMethod = $reflection->getMethod($methodName);
