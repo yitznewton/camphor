@@ -5,16 +5,16 @@ namespace EasyBib\Camphor;
 class CacheAspect
 {
     /**
-     * @var CachingFilter
+     * @var CachingProxy
      */
-    private $cachingFilter;
+    private $cachingProxy;
 
     /**
-     * @param CachingFilter $cachingFilter
+     * @param CachingProxy $cachingProxy
      */
-    public function __construct(CachingFilter $cachingFilter)
+    public function __construct(CachingProxy $cachingProxy)
     {
-        $this->cachingFilter = $cachingFilter;
+        $this->cachingProxy = $cachingProxy;
     }
 
     /**
@@ -34,7 +34,7 @@ class CacheAspect
 
         $this->createCachingClass($className, $methods);
         $newClassName = $this->fullCachingClassName($className);
-        $newClassName::setCachingFilter($this->cachingFilter);
+        $newClassName::setCachingProxy($this->cachingProxy);
     }
 
     /**
@@ -59,7 +59,7 @@ class CacheAspect
         $code .= <<<EOF
             private \$cacheKeyGenerator;
             private \$argValidator;
-            private static \$cachingFilter;
+            private static \$cachingProxy;
 
             public function __construct()
             {
@@ -75,9 +75,9 @@ class CacheAspect
                 }
             }
 
-            public static function setCachingFilter(\EasyBib\Camphor\CachingFilter \$cachingFilter)
+            public static function setCachingProxy(\EasyBib\Camphor\CachingProxy \$cachingProxy)
             {
-                self::\$cachingFilter = \$cachingFilter;
+                self::\$cachingProxy = \$cachingProxy;
             }
 
 
@@ -192,7 +192,7 @@ EOF;
                     return call_user_func_array(\$parentCallback, \$args);
                 };
 
-                return self::\$cachingFilter->applyFilter(\$key, \$callback);
+                return self::\$cachingProxy->applyProxy(\$key, \$callback);
             }
 
 

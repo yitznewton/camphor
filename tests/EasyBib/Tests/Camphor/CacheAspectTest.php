@@ -3,7 +3,7 @@
 namespace EasyBib\Tests\Camphor;
 
 use EasyBib\Camphor\CacheAspect;
-use EasyBib\Camphor\CachingFilter;
+use EasyBib\Camphor\CachingProxy;
 use EasyBib\Camphor\MultipleRegistrationException;
 use EasyBib\Camphor\NonexistentClassException;
 use EasyBib\Camphor\NonexistentMethodException;
@@ -15,9 +15,9 @@ use EasyBib\Tests\Camphor\Mocks\DataContainer;
 class CacheAspectTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var CachingFilter
+     * @var CachingProxy
      */
-    private static $cachingFilter;
+    private static $cachingProxy;
 
     /**
      * @var CacheAspect
@@ -32,8 +32,8 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
      */
     public static function setUpBeforeClass()
     {
-        self::$cachingFilter = new CachingFilter();
-        self::$cacheAspect = new CacheAspect(self::$cachingFilter);
+        self::$cachingProxy = new CachingProxy();
+        self::$cacheAspect = new CacheAspect(self::$cachingProxy);
         self::$cacheAspect->register(ComposingContainer::class, ['getValue']);
     }
 
@@ -41,7 +41,7 @@ class CacheAspectTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        self::$cachingFilter->reset();
+        self::$cachingProxy->reset();
     }
 
     /**

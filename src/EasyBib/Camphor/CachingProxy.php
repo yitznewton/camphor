@@ -5,7 +5,7 @@ namespace EasyBib\Camphor;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache;
 
-class CachingFilter
+class CachingProxy
 {
     /**
      * @var Cache
@@ -29,7 +29,7 @@ class CachingFilter
      * @param callable $callback
      * @return mixed
      */
-    public function applyFilter($key, callable $callback)
+    public function applyProxy($key, callable $callback)
     {
         if ($this->cache->contains($key)) {
             return $this->cache->fetch($key);
